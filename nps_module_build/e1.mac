@@ -1,0 +1,19 @@
+#
+# set verbose level for this run
+#
+/run/verbose      0
+/event/verbose    0
+/tracking/verbose 0
+#
+# Set the initial kinematic and run 100 events
+# electron 1 GeV to the direction (1.,0.,0.)
+#
+/gun/particle e-
+#/random/setDirectoryName ./random_numbers
+#/random/setSavingFlag 1
+#/random/resetEngineFrom currentEvent.rndm
+#/gun/direction 0 0 1
+#/gun/momentumAmp 1 GeV
+/run/beamOn 100
+#/random/saveThisEvent
+#/random/saveThisRun

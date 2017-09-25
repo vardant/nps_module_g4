@@ -1,0 +1,5 @@
+0.	Air gap in mm.
+0	Reflector flag: 0 -- diffuse, 1 -- specular,
+	2 -- specular with substrate facing cristal.
+
+0.035	Air gap in mm.

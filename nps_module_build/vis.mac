@@ -1,0 +1,52 @@
+#
+# Macro file for the initialization phase of "exampleN06.cc"
+# when running in interactive mode
+#
+# Sets some default verbose
+#
+/control/verbose 2
+/run/verbose 2
+#
+# create empty scene
+#
+/vis/scene/create
+# Draw coordinate axes:
+#/vis/scene/add/axes 0 0 0 1 m
+#
+# Create a scene handler for a specific graphics system
+# (Edit the next line(s) to choose another graphic system)
+#
+#/vis/open DAWNFILE
+/vis/open OGLIQt
+#
+/vis/viewer/set/viewpointVector 0.567757 0.258819 0.78145
+/vis/viewer/set/upVector 0 1 0
+/vis/viewer/set/projection orthogonal
+/vis/viewer/zoomTo 2.84766
+/vis/viewer/scaleTo 1 1 1
+/vis/viewer/set/targetPoint 1.47896 -0.397124 6.02975 mm 
+/vis/viewer/flush
+#
+# for drawing the tracks
+# Draw trajectories at end of event, showing trajectory points as
+# markers of size 2 pixels
+/vis/scene/add/trajectories
+#/vis/modeling/trajectories/create/drawByCharge
+#/vis/modeling/trajectories/drawByCharge-0/default/setDrawStepPts true
+#/vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 2
+
+/vis/modeling/trajectories/create/drawByParticleID
+/vis/modeling/trajectories/drawByParticleID-0/default/setDrawStepPts true
+/vis/modeling/trajectories/drawByParticleID-0/default/setStepPtsSize 1
+/vis/modeling/trajectories/drawByParticleID-0/set gamma blue
+/vis/modeling/trajectories/drawByParticleID-0/set opticalphoton green
+/vis/modeling/trajectories/drawByParticleID-0/setRGBA mu- 1 0 1 1
+
+# (if too many tracks cause core dump => storeTrajectory 0)
+#
+/vis/scene/endOfEventAction accumulate
+#
+# Refresh ready for run
+/vis/viewer/refresh
+#
+# Now ready for /run/beamOn.
