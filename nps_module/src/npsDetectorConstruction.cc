@@ -37,32 +37,58 @@ npsDetectorConstruction::npsDetectorConstruction() {
   getline(fin,line); istringstream iss1(line);
   iss1 >> air_gap;
   getline(fin,line); istringstream iss2(line);
-  iss2 >> ReflectorFlag;
-
+  iss2 >> refFlag;
+  getline(fin,line); istringstream iss3(line);
+  iss3 >> refName;
+  getline(fin,line); istringstream iss4(line);
+  iss4 >> refNumData;
+  refWL = new G4double[refNumData];
+  if (refFlag!=0) {
+    refReIndex = new G4double[refNumData];
+    refImIndex = new G4double[refNumData];
+    for (G4int i=refNumData-1; i>-1; i--)
+      fin >> refWL[i] >> refReIndex[i] >> refImIndex[i];
+  }
+  else {
+    refRefl = new G4double[refNumData];
+    for (G4int i=refNumData-1; i>-1; i--)
+      fin >> refWL[i] >> refRefl[i];
+  }
+  
+  fin >> subRefrIndex;
   fin.close();
 
   air_gap *= mm;
+
+  for (G4int i=0; i<refNumData; i++) refWL[i] *= nanometer;
     
   G4cout << "npsDetectorConstruction::npsDetectorConstruction: input data:"
 	  << G4endl;
   G4cout << "   Air gap = " << air_gap/mm << " mm" << G4endl;
-  G4cout << "   ReflectorFlag = " << ReflectorFlag << ", ";
-  switch (ReflectorFlag) {
-  case 0:
+  G4cout << "   Reflector: " << refName << ", refFlag = " << refFlag << ", ";
+  if (refFlag==0)
     G4cout << "diffuse reflector";
-    break;
-  case 1:
-    G4cout << "specular reflector with metal facing crystal";
-    break;
-  case 2:
-    G4cout << "specular reflector with substrate facing crystal";
-    break;
-  default:
-    G4cout << "not recognized, assume diffuse reflector";
-    ReflectorFlag = 0;
-  }
+  else
+    G4cout << "specular reflector";
   G4cout << "." << G4endl;
-  
+
+  G4cout << "   Reflector data:" << G4endl;
+  for (G4int i=refNumData-1; i>-1; i--) {
+    G4cout << "   " << refWL[i]/nanometer << " ";
+    if (refFlag!=0)
+      G4cout  << refReIndex[i] << " " << refImIndex[i];
+    else
+      G4cout << refRefl[i];
+    G4cout << " " << i << G4endl;
+  };
+
+  G4cout << "   Substrate refr. index = " << subRefrIndex;
+  if (subRefrIndex == 0.)
+    G4cout << ", no substrate";
+  else
+    G4cout << ", substrate layer between crystal and reflector.";
+  G4cout << G4endl;
+    
   tedlar_thick = 0.040*mm;   //40um Tedlar
   mylar_thick = 0.025*mm;    // + 25um Mylar
   ////  air_gap = 0.035*mm;        //guess
@@ -102,7 +128,6 @@ npsDetectorConstruction::npsDetectorConstruction() {
 }
 
 npsDetectorConstruction::~npsDetectorConstruction(){;}
-
 
 
 G4VPhysicalVolume* npsDetectorConstruction::Construct()
@@ -223,14 +248,6 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
 
   PbWO4 -> SetMaterialPropertiesTable(PbWO4MPT);
 
-  //  G4cout << "PbWO4 optical properties:" << G4endl;
-  //  for (G4int i=0; i<52; i++) {
-  //    G4cout << G4BestUnit(wlPbWO4[i],"Length")
-  //	   << G4BestUnit(kphotPbWO4[i],"Energy")
-  //	   << G4BestUnit(abslength[i],"Length")
-  //	   << rind[i] << G4endl;
-  //  }
-
   // Air
   // 
   G4Material* Air = new G4Material("Air", density=1.29*mg/cm3, nelements=2);
@@ -286,18 +303,17 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
 
   G4Material* Mylar = man->FindOrBuildMaterial("G4_MYLAR");
 
-  if (ReflectorFlag == 2) {
+  if (subRefrIndex != 0.) {
     
     //Mylar refractive index.
     G4double rindMylar[52];
     for (G4int i=0; i<52; i++) {
-      rindMylar[i] = 1.65;
+      rindMylar[i] = subRefrIndex;
     };
 
     G4MaterialPropertiesTable *MylarMPT = new G4MaterialPropertiesTable();
     MylarMPT -> AddProperty("RINDEX",kphotPbWO4,rindMylar,52);
     Mylar -> SetMaterialPropertiesTable(MylarMPT);
-
   }
 
   // Bialcali, the photochathode material
@@ -449,7 +465,7 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
   
   //  G4VPhysicalVolume* mylar_phys =
   new G4PVPlacement(0,  //no rotation
-		    G4ThreeVector(),
+  		    G4ThreeVector(),
 		    mylar_log,        //its logical volume
 		    "Mylar_phys",       //its name
 		    counter_log,    //its mother  volume
@@ -498,15 +514,6 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
 		    false,            //no boolean oper.
 		    0);               //copy number
 
-  ////  z = PMTWin_thick/2 - Cathode_thick/2;
-  ////  new G4PVPlacement(0, //no rotation
-  ////		    G4ThreeVector(x,y,z),
-  ////		    Cathode_log,  //its logical volume
-  ////		    "Cathode", //its name
-  ////		    PMTWin_right_log, //its mother  volume
-  ////		    false,       //no boolean operation
-  ////		    0);          //copy number
-
   z = block_z/2 + glue_thick + PMTWin_thick + Cathode_thick/2;
   new G4PVPlacement(0, //no rotation
 		    G4ThreeVector(x,y,z),
@@ -523,91 +530,14 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
   G4MaterialPropertiesTable* ReflectorMPT = new G4MaterialPropertiesTable();
   G4OpticalSurface* Reflector = new G4OpticalSurface("Reflector");
 
-  if (ReflectorFlag > 0) {
+  G4double* refKphot;   //Momenta of optical photons in eV units.
+  refKphot = new G4double[refNumData];
+  for (G4int i=0; i<refNumData; i++) refKphot[i] = hc/refWL[i];
 
-    // Specular reflector, aluminum.
-    
-    G4double wlAl[35] = {695.32,666.93,639.71,613.59,588.55,564.52,541.47,
-			 519.37,498.17,477.83,458.33,439.62,421.67,404.46,
-			 387.95,372.11,356.92,342.35,328.37,314.97,302.11,
-			 289.78,277.95,266.60,255.72,245.28,235.27,225.66,
-			 216.45,207.62,199.14,191.01,183.21,175.73,168.56};
+    if (refFlag != 0) {
 
-    for (G4int i=0; i<35; i++) wlAl[i] *= nanometer;
-
-    G4double kphotAl[35];   //Momenta of optical photons in eV units.
-    for (G4int i=0; i<35; i++) kphotAl[i] = hc/wlAl[i];
-
-    G4double real_index[35] = {
-      1.62030,1.42860,1.29520,1.19110,1.100500,1.016200,0.93525,
-      0.85697,0.78186,0.71074,0.64439,0.583360,0.527880,0.4779,
-      0.43317,0.39330,0.35785,0.32634,0.298320,0.273360,0.25107,
-      0.23109,0.21312,0.19687,0.18210,0.168600,0.156170,0.14468,
-      0.13398,0.12398,0.11461,0.10582,0.097571,0.089866,0.082703
-    };
-
-    G4double imag_index[35] = {
-      7.9931,7.6672,7.3576,7.0711,6.8042,6.5519,6.3099,
-      6.0750,5.8455,5.6203,5.3994,5.1830,4.9717,4.7659,
-      4.5661,4.3726,4.1856,4.0052,3.8313,3.6640,3.503,
-      3.3482,3.1992,3.0560,2.9182,2.7856,2.6578,2.5347,
-      2.4159,2.3011,2.1901,2.0826,1.9783,1.8771,1.7786
-    };
-    /*
-      G4double wlAg[102] = {
-      775.00,
-      751.52,729.41,708.57,688.89,670.27,652.63,635.90,620.00,604.88,590.48,
-      576.74,563.64,551.11,539.13,527.66,516.67,506.12,496.00,486.27,476.92,
-      467.92,459.26,450.91,442.86,435.09,427.59,420.34,413.33,406.56,400.00,
-      393.65,387.50,n381.54,375.76,370.15,364.71,359.42,354.29,349.30,344.44,
-      339.73,335.14,330.67,326.32,322.08,317.95,313.92,310.00,306.17,302.44,
-      298.80,295.24,291.76,288.37,285.06,281.82,278.65,275.56,272.53,269.57,
-      266.67,263.83,261.05,258.33,255.67,253.06,250.51,248.00,245.54,243.14,
-      240.78,238.46,236.19,233.96,231.78,229.63,227.52,225.45,223.42,221.43,
-      219.47,217.54,215.65,213.79,211.97,210.17,208.40,206.67,204.96,203.28,
-      201.63,200.00,198.40,196.83,195.28,193.75,192.25,190.77,189.31,187.88,
-      175.00
-      };
-
-      for (G4int i=0; i<102; i++) wlAg[i] *= nanometer;
-
-      G4double kphotAg[102];   //Momenta of optical photons in eV units.
-      for (G4int i=0; i<102; i++) kphotAg[i] = hc/wlAg[i];
-
-      G4double real_index[102] = {
-      0.143  ,
-      0.1459 ,0.148 ,0.1443 ,0.14 ,0.1401 ,0.14 ,0.1361 ,0.131 ,0.1255 ,0.121 ,
-      0.1193 ,0.12 ,0.1244 ,0.129 ,0.1301 ,0.13 ,0.1299 ,0.13 ,0.1303 ,0.132 ,
-      0.1373 ,0.144 ,0.1511 ,0.157 ,0.1585 ,0.16 ,0.1667 ,0.173 ,0.1726 ,0.173 ,
-      0.182 ,0.192 ,0.1981 ,0.2 ,0.1921 ,0.186 ,0.1948 ,0.209 ,0.2214 ,0.238 ,
-      0.2533 ,0.294 ,0.3881 ,0.526 ,0.7191 ,0.932 ,1.1421 ,1.323 ,1.4325 ,1.496 ,
-      1.5194 ,1.519 ,1.5136 ,1.502 ,1.4901 ,1.476 ,1.4592 ,1.441 ,1.4223 ,1.404 ,
-      1.3875 ,1.372 ,1.3569 ,1.343 ,1.3311 ,1.32 ,1.3086 ,1.298 ,1.2897 ,1.282 ,
-      1.2734 ,1.265 ,1.2572 ,1.25 ,1.244 ,1.238 ,1.2307 ,1.223 ,1.2157 ,1.208 ,
-      1.1991 ,1.19 ,1.1819 ,1.173 ,1.1614 ,1.149 ,1.1372 ,1.125 ,1.1116 ,1.098 ,
-      1.0848 ,1.072 ,1.0596 ,1.048 ,1.0375 ,1.028 ,1.0195 ,1.012 ,1.0043 ,0.995 ,
-      0.995
-      };
-
-      G4double imag_index[102] = {
-      5.09 ,
-      4.9081 ,4.74 ,4.5863 ,4.44 ,4.2931 ,4.15 ,4.0106 ,3.88 ,3.7663 ,3.66 ,
-      3.5538 ,3.45 ,3.3481 ,3.25 ,3.1594 ,3.07 ,2.9738 ,2.88 ,2.7981 ,2.72 ,
-      2.64 ,2.56 ,2.4788 ,2.4 ,2.3294 ,2.26 ,2.1863 ,2.11 ,2.0294 ,1.95 ,
-      1.8788 ,1.81 ,1.735 ,1.67 ,1.6419 ,1.61 ,1.5338 ,1.44 ,1.3453 ,1.24 ,
-      1.1207 ,0.986 ,0.8186 ,0.663 ,0.5544 ,0.504 ,0.5509 ,0.647 ,0.7611 ,0.882 ,
-      0.9888 ,1.08 ,1.143 ,1.19 ,1.2288 ,1.26 ,1.2881 ,1.31 ,1.3219 ,1.33 ,
-      1.3413 ,1.35 ,1.3513 ,1.35 ,1.35 ,1.35 ,1.3506 ,1.35 ,1.3456 ,1.34 ,
-      1.335 ,1.33 ,1.325 ,1.32 ,1.3147 ,1.31 ,1.3072 ,1.305 ,1.3025 ,1.3 ,
-      1.2975 ,1.295 ,1.2928 ,1.29 ,1.2853 ,1.28 ,1.275 ,1.27 ,1.2656 ,1.26 ,
-      1.2513 ,1.24 ,1.2256 ,1.21 ,1.1944 ,1.18 ,1.1681 ,1.16 ,1.1494 ,1.13 ,
-      1.13
-      };
-    */
-    ReflectorMPT -> AddProperty("REALRINDEX",kphotAl,real_index,35);
-    ReflectorMPT -> AddProperty("IMAGINARYRINDEX",kphotAl,imag_index,35);
-    ////  ReflectorMPT -> AddProperty("REALRINDEX",kphotAg,real_index,102);
-    ////  ReflectorMPT -> AddProperty("IMAGINARYRINDEX",kphotAg,imag_index,102);
+    ReflectorMPT->AddProperty("REALRINDEX",refKphot,refReIndex,refNumData);
+    ReflectorMPT->AddProperty("IMAGINARYRINDEX",refKphot,refImIndex,refNumData);
 
     Reflector -> SetType(dielectric_metal);
     Reflector -> SetFinish(polished);
@@ -616,20 +546,9 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
   else {
     // Diffuse reflector, PTFE (Teflon).
 
-    G4double wlPTFE[14] = {800.,750.,700.,650.,600.,550.,500.,
-			   450.,400.,350.,300.,250.,200.,150.};
+    ReflectorMPT -> AddProperty("REFLECTIVITY",refKphot,refRefl,refNumData);
 
-    for (G4int i=0; i<14; i++) wlPTFE[i] *= nanometer;
-
-    G4double kphotPTFE[14];
-    for (G4int i=0; i<14; i++) kphotPTFE[i] = hc/wlPTFE[i];
-
-    G4double refPTFE[14]= {0.755079,0.793454,0.829571,0.861174,0.889391,
-			   0.918736,0.934537,0.941309,0.952596,0.950339,
-			   0.936795,0.905192,0.905192,0.905192};
-
-    ReflectorMPT -> AddProperty("REFLECTIVITY",kphotPTFE,refPTFE,14);
-
+    Reflector -> SetType(dielectric_dielectric);
     Reflector -> SetModel(unified);
     Reflector -> SetFinish(groundfrontpainted);   //Purely Lambertian reflection
   }
@@ -640,22 +559,19 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
   ReflectorMPT->DumpTable();
   Reflector->DumpInfo();
 
-  //  G4cout << "Dumping optical properties of Reflector ..." << G4endl;
-  //  ((G4OpticalSurface*)
-  //   (Reflector->GetSurface(tedlar_log)->GetSurfaceProperty()))->DumpInfo();
-
-  if (ReflectorFlag < 2)
+  if (subRefrIndex == 0.) {
     // Reflective front surface of Mylar.
-    // Remove refraction index of Mylar (property table) in this case
-    // (to make it opaque).
     new G4LogicalSkinSurface("Reflector",mylar_log,Reflector);
-  else
+  }
+  else {
     // Reflective back surface of Mylar.
     // Tedlar borders Mylar from back. Making it reflective, makes effectively
     // Mylar back surface reflective.
-    // Activate property table of Mylar with its refractive index in this case.
     new G4LogicalSkinSurface("Reflector",tedlar_log,Reflector);
-
+    G4cout << "   subRefrIndex = " << subRefrIndex
+	   << ", substarate between crystal and reflector" << G4endl;
+  }
+  
   // Cathode efficiency for Phylips XP3461 PMT.
   //
 

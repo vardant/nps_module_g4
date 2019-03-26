@@ -34,8 +34,15 @@ private:
   G4double glue_thick;
   G4double air_gap;
 
-  G4int ReflectorFlag;
-
+  G4int refFlag;
+  G4String refName;
+  G4int refNumData;
+  G4double* refWL;
+  G4double* refReIndex;
+  G4double* refImIndex;
+  G4double subRefrIndex;
+  G4double* refRefl;
+  
   G4double block_x;
   G4double block_y;
   G4double block_z;

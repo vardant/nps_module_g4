@@ -69,6 +69,6 @@ void npsEventAction::EndOfEventAction(const G4Event* evt)
   std::ios::fmtflags curr_fmt = G4cout.flags();
 
   G4cout << std::showpoint << std::setprecision(5)
-	 << EdepEv/GeV  << " " << TrackEv/cm << std::setw(5) << Npe << G4endl;
+	 << EdepEv/MeV  << " " << TrackEv/cm << std::setw(5) << Npe << G4endl;
   G4cout.flags(curr_fmt);
 }

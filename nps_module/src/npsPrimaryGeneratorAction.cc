@@ -19,16 +19,24 @@ npsPrimaryGeneratorAction::npsPrimaryGeneratorAction()
   
   //default kinematic
   //
-  G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
-  G4ParticleDefinition* particle = particleTable->FindParticle("mu-");
+  //  G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
+  //  G4ParticleDefinition* particle = particleTable->FindParticle("mu-");
   //  G4ParticleDefinition* particle = particleTable->FindParticle("chargedgeantino");
 
+  //  particleGun->SetParticleDefinition(particle);
+  //  particleGun->SetParticleTime(0.0*ns);
+  //  particleGun->SetParticleMomentum(50*MeV);
+  //  particleGun->SetParticlePosition(G4ThreeVector(-10.*cm,0.,0.*cm));
+  //  particleGun->SetParticleMomentumDirection(G4ThreeVector(0.,0.,1.));
+
+  // Cosmics.
+  G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
+  G4ParticleDefinition* particle = particleTable->FindParticle("mu-");
   particleGun->SetParticleDefinition(particle);
   particleGun->SetParticleTime(0.0*ns);
-  particleGun->SetParticleMomentum(50*MeV);
-
-  particleGun->SetParticlePosition(G4ThreeVector(-10.*cm,0.,0.*cm));
-  particleGun->SetParticleMomentumDirection(G4ThreeVector(0.,0.,1.));
+  particleGun->SetParticleMomentum(2.*GeV);
+  particleGun->SetParticlePosition(G4ThreeVector(0.,1.5*cm,0.));
+  particleGun->SetParticleMomentumDirection(G4ThreeVector(0.,-1.,0.));
 
 }
 
@@ -49,8 +57,8 @@ void npsPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   //  G4double z = -25.*cm;
   //  particleGun->SetParticlePosition(G4ThreeVector(x,y,z));
 
-  particleGun->SetParticlePosition(G4ThreeVector(0.,0.,-10.1*cm));
-  particleGun->SetParticleMomentumDirection(G4ThreeVector(0.,0.,1.));
+  ////  particleGun->SetParticlePosition(G4ThreeVector(0.,0.,-10.1*cm));
+  ////  particleGun->SetParticleMomentumDirection(G4ThreeVector(0.,0.,1.));
 
   G4double Pin = particleGun->GetParticleMomentum();
   //  G4cout << "Pin = " << Pin/GeV << " GeV/c" << G4endl;
