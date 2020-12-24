@@ -47,6 +47,7 @@ set(nps_module_SCRIPTS
   nps.in
   e1.mac
   vis.mac
+  reflector.inp
   )
 
 foreach(_script ${nps_module_SCRIPTS})
