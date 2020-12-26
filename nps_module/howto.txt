@@ -1,0 +1,32 @@
+1. git clone git@github.com:/vardant/nps_module_g4
+
+   Clone package in nps_module_g4 directory.
+
+2. cd nps_module_g4
+
+3. rm -rf nps_module-build nps_module_build
+
+   Remove old "build" directories copied from the github.
+
+4. mkdir nps_module-build
+
+   Create the working "build" directory.
+
+5. cd nps_module-build
+
+6. cmake ../nps_module
+
+   Setup c++ compiler, copy the necessary input files from ../nps_module
+   to the working directory.
+
+7. make
+
+   Compile the code, create executable nps_module.
+
+8. ./nps_module
+
+   Render graphical image of the module.
+
+9. ./nps_module e1.mac
+
+   Sample 100 events.
