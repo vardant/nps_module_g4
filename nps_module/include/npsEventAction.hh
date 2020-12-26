@@ -21,11 +21,13 @@ class npsEventAction : public G4UserEventAction
     void BeginOfEventAction(const G4Event*);
     void EndOfEventAction(const G4Event*);
 
+  //Accrue energy deposition and track length for the event.
     void AddEv(G4double de, G4double dl) {
       EdepEv += de; 
       TrackEv += dl;
     }
 
+  //Accrue number of detected photoelectrons for the event.
   void AddNpe() {
       Npe += 1; 
     }
@@ -33,8 +35,8 @@ class npsEventAction : public G4UserEventAction
   private:
     npsRunAction*  runAct;
    
-    G4double  EdepEv, TrackEv;
-    G4int Npe;
+    G4double  EdepEv, TrackEv;   //Energy deposition and track lenth of event
+    G4int Npe;                   //Number of detected photoelectrons of event
                      
   //   npsEventActionMessenger*  eventMessenger;
 

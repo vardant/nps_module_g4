@@ -21,19 +21,23 @@ public:
 
 private:
 
+  //Outer sizes of optical insulation.
   G4double tedlar_x;
   G4double tedlar_y;
   G4double tedlar_z;
 
+  //Outer sizes of optical reflector.
   G4double mylar_x;
   G4double mylar_y;
   G4double mylar_z;
 
+  //Thicknesses of components.
   G4double tedlar_thick;
   G4double mylar_thick;
-  G4double glue_thick;
-  G4double air_gap;
+  G4double glue_thick;    //Glue between PMT and scintillator block
+  G4double air_gap;       //Air gap between reflector and scintillator block
 
+  //Parameters of reflector to be read from input file (reflector.inp).
   G4int refFlag;
   G4String refName;
   G4int refNumData;
@@ -42,16 +46,19 @@ private:
   G4double* refImIndex;
   G4double subRefrIndex;
   G4double* refRefl;
-  
+
+  //Scintillator block sizes.  
   G4double block_x;
   G4double block_y;
   G4double block_z;
 
+  //PMT sizes.
   G4double PMT_diameter;
-  G4double PMTWin_thick;
-  G4double Cathode_diam;
+  G4double PMTWin_thick;    //Thickness of PMT glass window.
+  G4double Cathode_diam;    //Photocathode diameter, thickness.
   G4double Cathode_thick;
 
+  //Outer sizes of the whole assembly (counter).
   G4double counter_x;
   G4double counter_y;
   G4double counter_z;
