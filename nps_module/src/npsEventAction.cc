@@ -38,7 +38,7 @@ void npsEventAction::BeginOfEventAction(const G4Event* evt)
    //   CLHEP::HepRandom::showEngineStatus();
  }
  
- // initialisation per event
+ // Initialise per event quantities.
  EdepEv = 0.;
  TrackEv = 0.;
  Npe = 0;
@@ -65,6 +65,8 @@ void npsEventAction::EndOfEventAction(const G4Event* evt)
     //       << "       Npe total: " << Npe
     //       << G4endl;
   }
+
+  //Output per event quantities.
 
   std::ios::fmtflags curr_fmt = G4cout.flags();
 

@@ -33,6 +33,9 @@ void npsSteppingAction::UserSteppingAction(const G4Step* aStep)
  
   G4VPhysicalVolume* volume = theTouchable->GetVolume();
 
+  //Accrue energy deposition and step length of charged particle
+  //in the scintillator block.
+
   //  if (volume == detector->Get_block()) {
   if (volume->GetName() == "Block_phys") {
 
@@ -54,7 +57,9 @@ void npsSteppingAction::UserSteppingAction(const G4Step* aStep)
 
   }
 
-  //PMT hits.
+  //PMT hits. Look for boundary process with optical photon. The boundary
+  //status must be "detection". The only volume on which it can happen is
+  // photocathode.
 
   G4OpBoundaryProcessStatus boundaryStatus=Undefined;
   static G4OpBoundaryProcess* boundary=NULL;

@@ -29,7 +29,9 @@ npsPrimaryGeneratorAction::npsPrimaryGeneratorAction()
   //  particleGun->SetParticlePosition(G4ThreeVector(-10.*cm,0.,0.*cm));
   //  particleGun->SetParticleMomentumDirection(G4ThreeVector(0.,0.,1.));
 
-  // Cosmics.
+  // Cosmic rays. Approximate by 2 GeV/c muons passing vertically through
+  // the middle of module, from top to bottom.
+
   G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
   G4ParticleDefinition* particle = particleTable->FindParticle("mu-");
   particleGun->SetParticleDefinition(particle);
@@ -60,6 +62,8 @@ void npsPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   ////  particleGun->SetParticlePosition(G4ThreeVector(0.,0.,-10.1*cm));
   ////  particleGun->SetParticleMomentumDirection(G4ThreeVector(0.,0.,1.));
 
+  //Get coordinates and momnentum of the primary particle and output them.
+
   G4double Pin = particleGun->GetParticleMomentum();
   //  G4cout << "Pin = " << Pin/GeV << " GeV/c" << G4endl;
 
@@ -82,6 +86,8 @@ void npsPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	 << Pin/MeV << " " << Xin/cm << " " << Yin/cm << " " << Zin/cm << "  ";
 
   G4cout.flags(curr_fmt);
+
+  //Generate primary vertex.
 
   particleGun->GeneratePrimaryVertex(anEvent);
 }
