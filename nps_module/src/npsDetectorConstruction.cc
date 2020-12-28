@@ -26,9 +26,11 @@
 
 using namespace std;
 
-// Single module from the Heremes calorimeter.
+// Single module of the NPS calorimeter.
 
 npsDetectorConstruction::npsDetectorConstruction() {
+
+  //Read in reflector parameters.
 
   ifstream fin;
   fin.open("reflector.inp");
@@ -43,6 +45,10 @@ npsDetectorConstruction::npsDetectorConstruction() {
   getline(fin,line); istringstream iss4(line);
   iss4 >> refNumData;
   refWL = new G4double[refNumData];
+
+  //For the specular reflector, read real and imaginary parts of refractive
+  //index. For the diffuse reflector, read reflectivity.
+
   if (refFlag!=0) {
     refReIndex = new G4double[refNumData];
     refImIndex = new G4double[refNumData];
@@ -55,12 +61,15 @@ npsDetectorConstruction::npsDetectorConstruction() {
       fin >> refWL[i] >> refRefl[i];
   }
   
+  //Read refractive index of substrate of reflector.
   fin >> subRefrIndex;
   fin.close();
 
   air_gap *= mm;
 
   for (G4int i=0; i<refNumData; i++) refWL[i] *= nanometer;
+
+  //Print out parameters of reflector.
     
   G4cout << "npsDetectorConstruction::npsDetectorConstruction: input data:"
 	  << G4endl;
@@ -88,6 +97,8 @@ npsDetectorConstruction::npsDetectorConstruction() {
   else
     G4cout << ", substrate layer between crystal and reflector.";
   G4cout << G4endl;
+
+  //
     
   tedlar_thick = 0.040*mm;   //40um Tedlar
   mylar_thick = 0.025*mm;    // + 25um Mylar
@@ -129,6 +140,7 @@ npsDetectorConstruction::npsDetectorConstruction() {
 
 npsDetectorConstruction::~npsDetectorConstruction(){;}
 
+//Construct the module.
 
 G4VPhysicalVolume* npsDetectorConstruction::Construct()
 {
@@ -177,6 +189,8 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
   G4double kphotPbWO4[52];   //Momenta of optical photons in eV units.
   for (G4int i=0; i<52; i++) kphotPbWO4[i] = hc/wlPbWO4[i];
 
+  //PbWO4 measured absorption length.
+
   G4double abslength[52] = {
     1400.,
     1400.,1400.,1400.,1400.,1400.,1400.,1400.,933.3,933.3,933.3,
@@ -190,10 +204,14 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
     abslength[i] *= cm;
   };
 
+  //PbWO4 refractive index.
+
   G4double rindPbWO4[52];
   for (G4int i=0; i<52; i++) {
     rindPbWO4[i] = 2.2;             //PbWO conventional refractive index
   };
+
+  //PBWO4 scinttilation yields, fast and slow components.
 
   G4double wlPbWO4_sc_fast[82] = {
     630.,
@@ -232,6 +250,8 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
 
   G4double PbWO4_sc_slow[82];
   for (G4int i=0; i<82; i++) PbWO4_sc_slow[i] = PbWO4_sc_fast[i];
+
+  //PbWO4 material properties table.
     
   G4MaterialPropertiesTable *PbWO4MPT = new G4MaterialPropertiesTable();
   
@@ -283,7 +303,7 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
   //
   density = 1.06*g/cm3;
   G4Material* OpticalGlue = new G4Material("Silgard", density, ncomponents=1);
-  OpticalGlue->AddElement(Si, 1); //not known
+  OpticalGlue->AddElement(Si, 1); //exact composition not known
 
   G4double rindGlue[52];
   for (G4int i=0; i<52; i++) {
@@ -300,6 +320,9 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
   G4Material* Polymer = new G4Material("Polymer", density, ncomponents=2);
   Polymer->AddElement(C, 1);
   Polymer->AddElement(H, 1);
+
+  //Mylar, reflector substrate material.
+  //
 
   G4Material* Mylar = man->FindOrBuildMaterial("G4_MYLAR");
 
@@ -534,7 +557,8 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
   refKphot = new G4double[refNumData];
   for (G4int i=0; i<refNumData; i++) refKphot[i] = hc/refWL[i];
 
-    if (refFlag != 0) {
+  if (refFlag != 0) {
+    //Specular reflector.
 
     ReflectorMPT->AddProperty("REALRINDEX",refKphot,refReIndex,refNumData);
     ReflectorMPT->AddProperty("IMAGINARYRINDEX",refKphot,refImIndex,refNumData);
@@ -572,7 +596,7 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
 	   << ", substarate between crystal and reflector" << G4endl;
   }
   
-  // Cathode efficiency for Phylips XP3461 PMT.
+  //Quantum efficiency of PMT photocathode.
   //
 
   G4double wlCat[101] = {675.,670.,665.,660.,655.,650.,645.,640.,635.,630.,
@@ -648,8 +672,8 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
   //
   //  new G4LogicalBorderSurface("PMTSurface",PMTWin_phys,counter_phys,surfPMT);
 
-// Visualisation attributes
-//
+  // Visualisation attributes
+  //
   expHall_log->SetVisAttributes (G4VisAttributes::Invisible);
   counter_log->SetVisAttributes (G4VisAttributes::Invisible);
   //  counter_end_log->SetVisAttributes (G4VisAttributes::Invisible);
