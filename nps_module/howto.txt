@@ -2,10 +2,10 @@ The nps_module is geant4 simulation code of single module of the
 Neutral Particle Spectrometer (NPS). The module consists of 2x2x20
 cm^3 PbWO4 crystal and attached to it photomultiplier. The crystal is
 optically isolated by a layer of optical reflector, and thin Tedlar
-film. The PMT is coupled to the crystal by optical grease from
-Bycron. The reflector can be diffuse or specular. It can be separated
-from surface of crystal by thin layer of air. Also, it can be
-reverted, such that its Mylar substrate faces the crystal.
+film. The PMT is coupled to the crystal by optical grease. The
+reflector can be diffuse or specular. It can be separated from surface
+of crystal by thin layer of air. Also, it can be reverted, such that
+its Mylar substrate faces the crystal.
 
 The code is intended for optimization of the module, its optical
 characteristics. Passage of various particles through the module,
@@ -13,7 +13,8 @@ development of showers in the crystal, generation of Cherenkov light
 and scintillation in PbWO4, traceing of optical photons up to the PMT
 photocathode and generation of photoelectrons are
 simulated. Absorption of photons in the crystal and reflections from
-the reflector are taken into account.
+the reflector are modeled by means of the Geant4 optics package. The
+code works with Geant4 version 10.3.
 
 The following steps shall be done to install and run the code:
 
