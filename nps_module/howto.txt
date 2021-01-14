@@ -24,30 +24,34 @@ The following steps shall be done to install and run the code:
 
 2. cd nps_module_g4
 
-3. rm -rf nps_module-build nps_module_build
+3. git checkout develop
+
+   Move from "master" to "develop" branch.
+
+4. rm -rf nps_module-build nps_module_build
 
    Remove old "build" directories copied from the github.
 
-4. mkdir nps_module-build
+5. mkdir nps_module-build
 
    Create the working "build" directory.
 
-5. cd nps_module-build
+6. cd nps_module-build
 
-6. cmake ../nps_module
+7. cmake ../nps_module
 
    Setup c++ compiler, copy the necessary input files from ../nps_module
    to the working directory.
 
-7. make
+8. make
 
    Compile the code, create executable nps_module.
 
-8. ./nps_module
+9. ./nps_module
 
    Render graphical image of the module.
 
-9. ./nps_module e1.mac
+10. ./nps_module e1.mac
 
    Sample 100 events.
 
