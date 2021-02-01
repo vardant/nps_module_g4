@@ -164,6 +164,7 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
   G4Element* K  = man->FindOrBuildElement("K");
   G4Element* N  = man->FindOrBuildElement("N");
   G4Element* Cs = man->FindOrBuildElement("Cs");
+  G4Element* F  = man->FindOrBuildElement("F");
 
   // Lead tungstate (PbWO4).
 
@@ -316,10 +317,15 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
 
   // Optical insulation
   //
-  density = 1.5;   //approximately
-  G4Material* Polymer = new G4Material("Polymer", density, ncomponents=2);
-  Polymer->AddElement(C, 1);
-  Polymer->AddElement(H, 1);
+  ///  density = 1.5;   //approximately
+  ///  G4Material* Polymer = new G4Material("Polymer", density, ncomponents=2);
+  ///  Polymer->AddElement(C, 1);
+  ///  Polymer->AddElement(H, 1);
+  density = 1.38;   //from goodfellow
+  G4Material* PVF = new G4Material("Polyvinyl fluoride",density,ncomponents=3);
+  PVF->AddElement(C, 2);
+  PVF->AddElement(H, 3);
+  PVF->AddElement(F, 1);
 
   //Mylar, reflector substrate material.
   //
@@ -389,7 +395,7 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
   G4SubtractionSolid* tedlar_frame = new G4SubtractionSolid("Tedlar",
 			      tedlar_holed, tedlar_front, trans_tedlar_front);
 
-  tedlar_log = new G4LogicalVolume(tedlar_frame,Polymer,"Tedlar",0,0,0);
+  tedlar_log = new G4LogicalVolume(tedlar_frame,PVF,"Tedlar",0,0,0);
 
   //Mylar, reflector.
   
