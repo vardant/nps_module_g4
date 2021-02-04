@@ -48,8 +48,20 @@ npsDetectorConstruction::npsDetectorConstruction() {
 
   //For the specular reflector, read real and imaginary parts of refractive
   //index. For the diffuse reflector, read reflectivity.
-
+  /*
   if (refFlag!=0) {
+    refReIndex = new G4double[refNumData];
+    refImIndex = new G4double[refNumData];
+    for (G4int i=refNumData-1; i>-1; i--)
+      fin >> refWL[i] >> refReIndex[i] >> refImIndex[i];
+  }
+  else {
+    refRefl = new G4double[refNumData];
+    for (G4int i=refNumData-1; i>-1; i--)
+      fin >> refWL[i] >> refRefl[i];
+  }
+  */
+  if (refFlag==1) {
     refReIndex = new G4double[refNumData];
     refImIndex = new G4double[refNumData];
     for (G4int i=refNumData-1; i>-1; i--)
@@ -84,7 +96,7 @@ npsDetectorConstruction::npsDetectorConstruction() {
   G4cout << "   Reflector data:" << G4endl;
   for (G4int i=refNumData-1; i>-1; i--) {
     G4cout << "   " << refWL[i]/nanometer << " ";
-    if (refFlag!=0)
+    if (refFlag==1)
       G4cout  << refReIndex[i] << " " << refImIndex[i];
     else
       G4cout << refRefl[i];
@@ -93,7 +105,7 @@ npsDetectorConstruction::npsDetectorConstruction() {
 
   G4cout << "   Substrate refr. index = " << subRefrIndex;
   if (subRefrIndex == 0.)
-    G4cout << ", no substrate";
+    G4cout << ", no substrate between crystal and reflector.";
   else
     G4cout << ", substrate layer between crystal and reflector.";
   G4cout << G4endl;
@@ -563,6 +575,7 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
   refKphot = new G4double[refNumData];
   for (G4int i=0; i<refNumData; i++) refKphot[i] = hc/refWL[i];
 
+  /*
   if (refFlag != 0) {
     //Specular reflector.
 
@@ -581,6 +594,29 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
     Reflector -> SetType(dielectric_dielectric);
     Reflector -> SetModel(unified);
     Reflector -> SetFinish(groundfrontpainted);   //Purely Lambertian reflection
+  }
+  */
+
+  if (refFlag == 1) {
+
+    ReflectorMPT->AddProperty("REALRINDEX",refKphot,refReIndex,refNumData);
+    ReflectorMPT->AddProperty("IMAGINARYRINDEX",refKphot,refImIndex,
+			      refNumData);
+
+    Reflector -> SetType(dielectric_metal);
+    Reflector -> SetFinish(polished);
+    Reflector -> SetModel(glisur);
+  }
+  else {
+    // Non metallic reflector, PTFE (Teflon), VM2000.
+
+    ReflectorMPT -> AddProperty("REFLECTIVITY",refKphot,refRefl,refNumData);
+    Reflector -> SetType(dielectric_dielectric);
+    Reflector -> SetModel(unified);
+    if (refFlag == 0)
+      Reflector -> SetFinish(groundfrontpainted); //Purely Lambertian reflection
+    else
+      Reflector -> SetFinish(polishedfrontpainted); //Purely specular reflection
   }
 
   Reflector -> SetMaterialPropertiesTable(ReflectorMPT);

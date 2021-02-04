@@ -1,4 +1,28 @@
 0.035	Air gap in mm (0.035 mm nominal)
+2	Reflector flag: 0 -- diffuse, 1 -- spec.-metallic, 2 -- spec.-dielectric
+VM2000 reflectivity, 65um (M.Janecek, "Reflectitvity spectra for commonly used reflectors", p.5, fig.8).
+18
+175.    0.15
+253.668 0.152632
+259.459 0.142105
+284.556 0.0684211
+303.861 0.0157895
+325.097 0.0842105
+340.541 0.0894737
+361.776 0.115789
+381.081 0.147368
+390.734 0.694737
+399.735 0.961429
+410.066 0.98
+420.397 0.985714
+440.265 0.985714
+460.132 0.985714
+480.795 0.992857
+499.868 0.992857
+800.    0.99
+0		substrate ref. index
+
+0.035	Air gap in mm (0.035 mm nominal)
 0	Reflector flag: 0 -- diffuse, 1 -- specular.
 Teflon reflectivity, 60um (M.Janecek, "Reflectitvity spectra for commonly used reflectors").
 13
@@ -179,3 +203,4 @@ Aluminum data from refractiveindex.info.
 639.71 1.2952e+00 7.3576e+00
 666.93 1.4286e+00 7.6672e+00
 695.32 1.6203e+00 7.9931e+00
+
