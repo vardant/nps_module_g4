@@ -221,8 +221,20 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
 
   G4double rindPbWO4[52];
   for (G4int i=0; i<52; i++) {
-    rindPbWO4[i] = 2.2;             //PbWO conventional refractive index
+  ///    rindPbWO4[i] = 2.2;             //PbWO conventional refractive index
+    rindPbWO4[i] = 2.3;             //test
   };
+
+  //Ordinary refractive index for PbWO4 from R.Chipaux, CMS TN/95-184.
+  //Note: it is kept constant below 320 nm.
+  //  G4double rindPbWO4[52] = {
+  //    2.230, 2.231, 2.233, 2.235, 2.237, 2.239, 2.242, 2.244, 2.247, 2.250, 
+  //    2.253, 2.257, 2.261, 2.265, 2.269, 2.274, 2.279, 2.284, 2.290, 2.297, 
+  //    2.303, 2.312, 2.321, 2.330, 2.341, 2.354, 2.368, 2.384, 2.402, 2.424, 
+  //    2.449, 2.479, 2.515, 2.561, 2.618, 2.693, 2.795, 2.795, 2.795, 2.795, 
+  //    2.795, 2.795, 2.795, 2.795, 2.795, 2.795, 2.795, 2.795, 2.795, 2.795,
+  //    2.795, 2.795};
+
 
   //PBWO4 scinttilation yields, fast and slow components.
 
