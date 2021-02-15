@@ -203,7 +203,7 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
   for (G4int i=0; i<52; i++) kphotPbWO4[i] = hc/wlPbWO4[i];
 
   //PbWO4 measured absorption length.
-
+  /*
   G4double abslength[52] = {
     1400.,
     1400.,1400.,1400.,1400.,1400.,1400.,1400.,933.3,933.3,933.3,
@@ -216,24 +216,86 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
   for (G4int i=0; i<52; i++) {
     abslength[i] *= cm;
   };
+  */
+
+  //Absorption length from transmittance measurements of 19 SICCAS crystals
+  //at CUA. Transmittances from Vladimir.
+  /*
+  const int nAbsl = 60;
+  double wlAbsl[nAbsl] = {800.,790.,780.,770.,760.,750.,740.,730.,720.,710.,
+			  700.,690.,680.,670.,660.,650.,640.,630.,620.,610.,
+			  600.,590.,580.,570.,560.,550.,540.,530.,520.,510.,
+			  500.,490.,480.,470.,460.,450.,440.,430.,420.,410.,
+			  400.,390.,380.,370.,360.,350.,340.,330.,320.,310.,
+			  300.,290.,280.,270.,260.,250.,240.,230.,220.,210.};
+  double abslength[nAbsl] = {440.983, 441.162, 442.037, 447.54, 451.036, 
+			     449.096, 440.888, 437.576, 431.158, 434.123, 
+			     425.697, 426.832, 428.482, 419.536, 414.457, 
+			     416.837, 408.455, 396.617, 398.019, 392.691, 
+			     393.791, 384.79 , 373.348, 372.505, 367.286, 
+			     348.639, 345.557, 336.343, 324.083, 308.243, 
+			     301.369, 289.736, 279.774, 270.555, 256.633, 
+			     238.905, 224.355, 206.619, 185.351, 160.239, 
+			     134.945, 108.963, 85.5356, 57.4822, 26.29, 
+			     //8.28956,  2.3158,      0.,      0., 2.28963, 
+			     //2.21313, 2.16771, 2.13827, 2.10315, 1.91101
+			     0.     , 0.     , 0.     , 0.     , 0.     , 
+			     0.     , 0.     , 0.     , 0.     , 0.     };
+  */
+
+  //Absorption length from transmittance measurement of a Crytur crystal
+  //at CUA. Transmittances from Vladimir.
+  const int nAbsl = 61;
+  double wlAbsl[nAbsl] = {800.,790.,780.,770.,760.,750.,740.,730.,720.,710.,
+			  700.,690.,680.,670.,660.,650.,640.,630.,620.,610.,
+			  600.,590.,580.,570.,560.,550.,540.,530.,520.,510.,
+			  500.,490.,480.,470.,460.,450.,440.,430.,420.,410.,
+			  400.,390.,380.,370.,360.,350.,340.,330.,320.,310.,
+			  300.,290.,280.,270.,260.,250.,240.,230.,220.,210.,
+			  200.};
+  double abslength[nAbsl] = {796.786, 734.961, 789.161, 747.455, 803.081, 
+			     798.21 , 725.257, 815.755, 768.501, 743.501, 
+			     756.055, 796.412, 809.239, 720.358, 742.132, 
+			     725.029, 751.585, 697.754, 713.542, 709.338, 
+			     716.528, 692.502, 675.357, 681.138, 649.767, 
+			     645.957, 638.725, 614.09 , 608.476, 606.628, 
+			     640.36 , 630.599, 565.443, 564.31 , 596.479, 
+			     585.38 , 587.096, 580.228, 521.699, 511.217, 
+			     490.883, 430.125, 307.714, 150.343, 46.2254, 
+			     //11.4686,   0.   ,   0.   ,   0.   ,  2.75252, 
+			     //2.53861, 2.7026 , 2.90355, 2.90012, 2.76918, 
+			     //2.41157, 0.     , 0.     , 0.     , 0.     , 
+			     11.4686,   0.   ,   0.   ,   0.   ,  0., 
+			     0.     ,   0.   ,   0.   ,   0.   ,  0., 
+			     0.     ,   0.   ,   0.   ,   0.   ,  0., 
+			     0.};
+
+  for (G4int i=0; i<nAbsl; i++) wlAbsl[i] *= nanometer;
+
+  for (G4int i=0; i<nAbsl; i++) {
+    abslength[i] *= cm;
+  };
+
+  G4double kphotAbsl[nAbsl];   //Momenta of optical photons in eV units.
+  for (G4int i=0; i<nAbsl; i++) kphotAbsl[i] = hc/wlAbsl[i];
 
   //PbWO4 refractive index.
 
-  G4double rindPbWO4[52];
-  for (G4int i=0; i<52; i++) {
+  //  G4double rindPbWO4[52];
+  //  for (G4int i=0; i<52; i++) {
   ///    rindPbWO4[i] = 2.2;             //PbWO conventional refractive index
-    rindPbWO4[i] = 2.3;             //test
-  };
+  //    rindPbWO4[i] = 2.3;             //test
+  //  };
 
   //Ordinary refractive index for PbWO4 from R.Chipaux, CMS TN/95-184.
   //Note: it is kept constant below 320 nm.
-  //  G4double rindPbWO4[52] = {
-  //    2.230, 2.231, 2.233, 2.235, 2.237, 2.239, 2.242, 2.244, 2.247, 2.250, 
-  //    2.253, 2.257, 2.261, 2.265, 2.269, 2.274, 2.279, 2.284, 2.290, 2.297, 
-  //    2.303, 2.312, 2.321, 2.330, 2.341, 2.354, 2.368, 2.384, 2.402, 2.424, 
-  //    2.449, 2.479, 2.515, 2.561, 2.618, 2.693, 2.795, 2.795, 2.795, 2.795, 
-  //    2.795, 2.795, 2.795, 2.795, 2.795, 2.795, 2.795, 2.795, 2.795, 2.795,
-  //    2.795, 2.795};
+  G4double rindPbWO4[52] = {
+    2.230, 2.231, 2.233, 2.235, 2.237, 2.239, 2.242, 2.244, 2.247, 2.250, 
+    2.253, 2.257, 2.261, 2.265, 2.269, 2.274, 2.279, 2.284, 2.290, 2.297, 
+    2.303, 2.312, 2.321, 2.330, 2.341, 2.354, 2.368, 2.384, 2.402, 2.424, 
+    2.449, 2.479, 2.515, 2.561, 2.618, 2.693, 2.795, 2.795, 2.795, 2.795, 
+    2.795, 2.795, 2.795, 2.795, 2.795, 2.795, 2.795, 2.795, 2.795, 2.795,
+    2.795, 2.795};
 
 
   //PBWO4 scinttilation yields, fast and slow components.
@@ -281,7 +343,8 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
   G4MaterialPropertiesTable *PbWO4MPT = new G4MaterialPropertiesTable();
   
   PbWO4MPT -> AddProperty("RINDEX",kphotPbWO4,rindPbWO4,52);
-  PbWO4MPT -> AddProperty("ABSLENGTH",kphotPbWO4,abslength,52);
+  ///  PbWO4MPT -> AddProperty("ABSLENGTH",kphotPbWO4,abslength,52);
+  PbWO4MPT -> AddProperty("ABSLENGTH",kphotAbsl,abslength,nAbsl);
 
   PbWO4MPT->AddProperty("FASTCOMPONENT",kphotPbWO4_sc_fast,PbWO4_sc_fast,82);
   PbWO4MPT->AddProperty("SLOWCOMPONENT",kphotPbWO4_sc_slow,PbWO4_sc_slow,82);
