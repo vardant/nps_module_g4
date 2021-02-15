@@ -220,7 +220,6 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
 
   //Absorption length from transmittance measurements of 19 SICCAS crystals
   //at CUA. Transmittances from Vladimir.
-  /*
   const int nAbsl = 60;
   double wlAbsl[nAbsl] = {800.,790.,780.,770.,760.,750.,740.,730.,720.,710.,
 			  700.,690.,680.,670.,660.,650.,640.,630.,620.,610.,
@@ -241,10 +240,10 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
 			     //2.21313, 2.16771, 2.13827, 2.10315, 1.91101
 			     0.     , 0.     , 0.     , 0.     , 0.     , 
 			     0.     , 0.     , 0.     , 0.     , 0.     };
-  */
 
   //Absorption length from transmittance measurement of a Crytur crystal
   //at CUA. Transmittances from Vladimir.
+  /*
   const int nAbsl = 61;
   double wlAbsl[nAbsl] = {800.,790.,780.,770.,760.,750.,740.,730.,720.,710.,
 			  700.,690.,680.,670.,660.,650.,640.,630.,620.,610.,
@@ -269,6 +268,7 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
 			     0.     ,   0.   ,   0.   ,   0.   ,  0., 
 			     0.     ,   0.   ,   0.   ,   0.   ,  0., 
 			     0.};
+  */
 
   for (G4int i=0; i<nAbsl; i++) wlAbsl[i] *= nanometer;
 
@@ -348,7 +348,16 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
 
   PbWO4MPT->AddProperty("FASTCOMPONENT",kphotPbWO4_sc_fast,PbWO4_sc_fast,82);
   PbWO4MPT->AddProperty("SLOWCOMPONENT",kphotPbWO4_sc_slow,PbWO4_sc_slow,82);
-  PbWO4MPT->AddConstProperty("SCINTILLATIONYIELD", 40000*0.377/100/MeV);
+
+  //PDG
+  //  PbWO4MPT->AddConstProperty("SCINTILLATIONYIELD", 40000*0.377/100/MeV);
+
+  //Crytur, tuned to 6.77 pe/MeV (16.1 pe/MeV for PMT full coverage)
+  // PbWO4MPT->AddConstProperty("SCINTILLATIONYIELD", 1.6*40000*0.377/100/MeV);
+
+  //SICCAS, tuned to 6.90 pe/MeV (16.4 pe/MeV for PMT full coverage)
+  PbWO4MPT->AddConstProperty("SCINTILLATIONYIELD", 2.25*40000*0.377/100/MeV);
+
   PbWO4MPT->AddConstProperty("RESOLUTIONSCALE", 1.0);
   PbWO4MPT->AddConstProperty("FASTTIMECONSTANT", 10.*ns);
   PbWO4MPT->AddConstProperty("SLOWTIMECONSTANT", 30.*ns);
