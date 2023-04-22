@@ -346,8 +346,12 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
   ///  PbWO4MPT -> AddProperty("ABSLENGTH",kphotPbWO4,abslength,52);
   PbWO4MPT -> AddProperty("ABSLENGTH",kphotAbsl,abslength,nAbsl);
 
-  PbWO4MPT->AddProperty("FASTCOMPONENT",kphotPbWO4_sc_fast,PbWO4_sc_fast,82);
-  PbWO4MPT->AddProperty("SLOWCOMPONENT",kphotPbWO4_sc_slow,PbWO4_sc_slow,82);
+  // PbWO4MPT->AddProperty("FASTCOMPONENT",kphotPbWO4_sc_fast,PbWO4_sc_fast,82);
+  // PbWO4MPT->AddProperty("SLOWCOMPONENT",kphotPbWO4_sc_slow,PbWO4_sc_slow,82);
+  PbWO4MPT->AddProperty("SCINTILLATIONCOMPONENT1",kphotPbWO4_sc_fast,
+			PbWO4_sc_fast,82);
+  PbWO4MPT->AddProperty("SCINTILLATIONCOMPONENT2",kphotPbWO4_sc_slow,
+			PbWO4_sc_slow,82);
 
   //PDG
   //  PbWO4MPT->AddConstProperty("SCINTILLATIONYIELD", 40000*0.377/100/MeV);
@@ -359,9 +363,13 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
   PbWO4MPT->AddConstProperty("SCINTILLATIONYIELD", 2.25*40000*0.377/100/MeV);
 
   PbWO4MPT->AddConstProperty("RESOLUTIONSCALE", 1.0);
-  PbWO4MPT->AddConstProperty("FASTTIMECONSTANT", 10.*ns);
-  PbWO4MPT->AddConstProperty("SLOWTIMECONSTANT", 30.*ns);
-  PbWO4MPT->AddConstProperty("YIELDRATIO", 0.077/(0.077+0.3));
+  //  PbWO4MPT->AddConstProperty("FASTTIMECONSTANT", 10.*ns);
+  //  PbWO4MPT->AddConstProperty("SLOWTIMECONSTANT", 30.*ns);
+  //  PbWO4MPT->AddConstProperty("YIELDRATIO", 0.077/(0.077+0.3));
+  PbWO4MPT->AddConstProperty("SCINTILLATIONTIMECONSTANT1", 10.*ns);
+  PbWO4MPT->AddConstProperty("SCINTILLATIONTIMECONSTANT2", 30.*ns);
+  PbWO4MPT->AddConstProperty("SCINTILLATIONYIELD1", 0.077/(0.077+0.3));
+  PbWO4MPT->AddConstProperty("SCINTILLATIONYIELD2", 0.300/(0.077+0.3));
 
   PbWO4 -> SetMaterialPropertiesTable(PbWO4MPT);
 
@@ -800,11 +808,13 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
 
   // Visualisation attributes
   //
-  expHall_log->SetVisAttributes (G4VisAttributes::Invisible);
-  counter_log->SetVisAttributes (G4VisAttributes::Invisible);
+  //  expHall_log->SetVisAttributes (G4VisAttributes::Invisible);
+  //  counter_log->SetVisAttributes (G4VisAttributes::Invisible);
   //  counter_end_log->SetVisAttributes (G4VisAttributes::Invisible);
   //  PMTWin_log->SetVisAttributes (G4VisAttributes::Invisible);
   //  glue_log->SetVisAttributes (G4VisAttributes::Invisible);
+  expHall_log->SetVisAttributes (G4VisAttributes::GetInvisible());
+  counter_log->SetVisAttributes (G4VisAttributes::GetInvisible());
 
   // print the table of materials
   G4cout << *(G4Material::GetMaterialTable()) << G4endl;
