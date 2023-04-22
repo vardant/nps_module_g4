@@ -19,6 +19,9 @@
 
 #include <ostream>
 
+#define G4VIS_USE
+#define G4UI_USE
+
 #ifdef G4VIS_USE
 #include "G4VisExecutive.hh"
 #endif
