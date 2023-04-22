@@ -18,7 +18,7 @@ code works with Geant4 version 10.3.
 
 The following steps shall be done to install and run the code:
 
-1. git clone git@github.com:/vardant/nps_module_g4
+1. git clone https://github.com/vardant/nps_module_g4
 
    Clone package in nps_module_g4 directory.
 
