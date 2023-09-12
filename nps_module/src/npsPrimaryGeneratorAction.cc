@@ -9,6 +9,8 @@
 #include "G4ParticleDefinition.hh"
 #include "G4SystemOfUnits.hh"
 
+using namespace std;
+
 npsPrimaryGeneratorAction::npsPrimaryGeneratorAction()
 {
   G4int n_particle = 1;
@@ -16,29 +18,47 @@ npsPrimaryGeneratorAction::npsPrimaryGeneratorAction()
   
   //create a messenger for this class
   gunMessenger = new npsPrimaryGeneratorMessenger(this);
+
+  //Input primary particle's coordinates, momenta, name.
   
-  //default kinematic
-  //
-  //  G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
-  //  G4ParticleDefinition* particle = particleTable->FindParticle("mu-");
-  //  G4ParticleDefinition* particle = particleTable->FindParticle("chargedgeantino");
+  ifstream fin;
+  fin.open("beam.inp");
 
-  //  particleGun->SetParticleDefinition(particle);
-  //  particleGun->SetParticleTime(0.0*ns);
-  //  particleGun->SetParticleMomentum(50*MeV);
-  //  particleGun->SetParticlePosition(G4ThreeVector(-10.*cm,0.,0.*cm));
-  //  particleGun->SetParticleMomentumDirection(G4ThreeVector(0.,0.,1.));
+  istringstream iss;
+  G4String line;
+  
+  getline(fin,line); iss.clear(); iss.str(line);
+  iss >> fXmin >> fXmax;
+  getline(fin,line); iss.clear(); iss.str(line);
+  iss >> fYmin >> fYmax;
+  getline(fin,line); iss.clear(); iss.str(line);
+  iss >> fZmin >> fZmax;
+  getline(fin,line); iss.clear(); iss.str(line);
+  iss >> fPx >> fPy >> fPz;
+  getline(fin,line); iss.clear(); iss.str(line);
+  iss >> fParticle;
 
-  // Cosmic rays. Approximate by 2 GeV/c muons passing vertically through
-  // the middle of module, from top to bottom.
+  fXmin *= cm; fXmax *= cm;
+  fYmin *= cm; fYmax *= cm;
+  fZmin *= cm; fZmax *= cm;
+  fPx *= GeV; fPy *= GeV; fPz *= GeV;
 
+  cout << "PrimaryGeneratorAction: --------------------" << endl;
+  cout << "Particle: " << fParticle << endl;
+  cout << "Px, Py, Pz: " << fPx/GeV << ", " << fPy/GeV << ", " << fPz/GeV
+       << " GeV/c" <<endl;
+  cout << "Xmin, Xmax: " << fXmin/cm << ", " << fXmax/cm << " cm" << endl;
+  cout << "Ymin, Ymax: " << fYmin/cm << ", " << fYmax/cm << " cm" << endl;
+  cout << "Zmin, Zmax: " << fZmin/cm << ", " << fZmax/cm << " cm" << endl;
+  cout << "-----------------------------------------------" << endl;
+  
   G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
-  G4ParticleDefinition* particle = particleTable->FindParticle("mu-");
+  G4ParticleDefinition* particle=particleTable->FindParticle(fParticle.c_str());
   particleGun->SetParticleDefinition(particle);
   particleGun->SetParticleTime(0.0*ns);
-  particleGun->SetParticleMomentum(2.*GeV);
-  particleGun->SetParticlePosition(G4ThreeVector(0.,1.5*cm,0.));
-  particleGun->SetParticleMomentumDirection(G4ThreeVector(0.,-1.,0.));
+  double P = sqrt(fPx*fPx+fPy*fPy+fPz*fPz);
+  particleGun->SetParticleMomentum(P);
+  particleGun->SetParticleMomentumDirection(G4ThreeVector(fPx/P,fPy/P,fPz/P));
 
 }
 
@@ -50,17 +70,13 @@ npsPrimaryGeneratorAction::~npsPrimaryGeneratorAction()
 }
 
 
-
 void npsPrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
-  //  G4double x = -5.*cm;
-  //  G4double x = (G4UniformRand()-0.5)*9.*cm;
-  //  G4double y = (G4UniformRand()-0.5)*9.*cm;
-  //  G4double z = -25.*cm;
-  //  particleGun->SetParticlePosition(G4ThreeVector(x,y,z));
-
-  ////  particleGun->SetParticlePosition(G4ThreeVector(0.,0.,-10.1*cm));
-  ////  particleGun->SetParticleMomentumDirection(G4ThreeVector(0.,0.,1.));
+  //Sample input coordinates.
+  G4double x = fXmin + (fXmax-fXmin)*G4UniformRand();
+  G4double y = fYmin + (fYmax-fYmin)*G4UniformRand();
+  G4double z = fZmin + (fZmax-fZmin)*G4UniformRand();
+  particleGun->SetParticlePosition(G4ThreeVector(x,y,z));
 
   //Get coordinates and momnentum of the primary particle and output them.
 

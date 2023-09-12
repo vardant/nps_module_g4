@@ -27,6 +27,14 @@ class npsPrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
   private:
     G4ParticleGun* particleGun;
     npsPrimaryGeneratorMessenger* gunMessenger;
+
+  //Primary particle.
+  double fXmin, fXmax;   //cm
+  double fYmin, fYmax;   //cm
+  double fZmin, fZmax;   //cm
+  double fPx, fPy, fPz;   //GeV
+  std::string fParticle;
+  
 };
 
 

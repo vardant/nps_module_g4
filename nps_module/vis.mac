@@ -43,5 +43,12 @@
 #
 # Refresh ready for run
 /vis/viewer/refresh
-#
+##
+/vis/geometry/set/colour Cathode 10 red
 # Now ready for /run/beamOn.
+#/tracking/verbose 1
+/gun/particle mu-
+/gun/position 0 -15 0
+/gun/direction 0 -1 0
+/gun/momentumAmp 4 GeV
+/run/beamOn 1

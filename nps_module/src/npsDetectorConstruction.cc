@@ -35,6 +35,7 @@ npsDetectorConstruction::npsDetectorConstruction() {
   ifstream fin;
   fin.open("reflector.inp");
 
+  /*
   G4String line;
   getline(fin,line); istringstream iss1(line);
   iss1 >> air_gap;
@@ -45,22 +46,25 @@ npsDetectorConstruction::npsDetectorConstruction() {
   getline(fin,line); istringstream iss4(line);
   iss4 >> refNumData;
   refWL = new G4double[refNumData];
+  */
+
+    istringstream iss;
+  G4String line;
+  
+  getline(fin,line); iss.clear(); iss.str(line);
+  iss >> air_gap;
+  getline(fin,line); iss.clear(); iss.str(line);
+  iss >> gapRefInd;
+  getline(fin,line); iss.clear(); iss.str(line);
+  iss >> refFlag;
+  getline(fin,line); iss.clear(); iss.str(line);
+  iss >> refName;
+  getline(fin,line); iss.clear(); iss.str(line);
+  iss >> refNumData;
+  refWL = new G4double[refNumData];
 
   //For the specular reflector, read real and imaginary parts of refractive
   //index. For the diffuse reflector, read reflectivity.
-  /*
-  if (refFlag!=0) {
-    refReIndex = new G4double[refNumData];
-    refImIndex = new G4double[refNumData];
-    for (G4int i=refNumData-1; i>-1; i--)
-      fin >> refWL[i] >> refReIndex[i] >> refImIndex[i];
-  }
-  else {
-    refRefl = new G4double[refNumData];
-    for (G4int i=refNumData-1; i>-1; i--)
-      fin >> refWL[i] >> refRefl[i];
-  }
-  */
   if (refFlag==1) {
     refReIndex = new G4double[refNumData];
     refImIndex = new G4double[refNumData];
@@ -73,8 +77,17 @@ npsDetectorConstruction::npsDetectorConstruction() {
       fin >> refWL[i] >> refRefl[i];
   }
   
+  getline(fin,line);
+    
   //Read refractive index of substrate of reflector.
-  fin >> subRefrIndex;
+  getline(fin,line); iss.clear(); iss.str(line);
+  //  cout << "line: : " <<  line << endl;
+  //  getchar();
+  iss >>  subRefrIndex;
+  getline(fin,line);  iss.clear(); iss.str(line);
+  //  cout << "line: " << line << endl;
+  //  getchar();
+  iss >> phDetFlag;
   fin.close();
 
   air_gap *= mm;
@@ -86,6 +99,7 @@ npsDetectorConstruction::npsDetectorConstruction() {
   G4cout << "npsDetectorConstruction::npsDetectorConstruction: input data:"
 	  << G4endl;
   G4cout << "   Air gap = " << air_gap/mm << " mm" << G4endl;
+  G4cout << "   Gap ref.index = " << gapRefInd << G4endl;
   G4cout << "   Reflector: " << refName << ", refFlag = " << refFlag << ", ";
   if (refFlag==0)
     G4cout << "diffuse reflector";
@@ -110,6 +124,12 @@ npsDetectorConstruction::npsDetectorConstruction() {
     G4cout << ", substrate layer between crystal and reflector.";
   G4cout << G4endl;
 
+  G4cout << "   phDetFlag = " << phDetFlag << ", ";
+  if (phDetFlag == 0)
+    G4cout << "PMT to detect photons" << G4endl;
+  else
+    G4cout << "SiPM to detect photons" << G4endl;
+
   //
     
   tedlar_thick = 0.040*mm;   //40um Tedlar
@@ -127,6 +147,8 @@ npsDetectorConstruction::npsDetectorConstruction() {
   PMTWin_thick = 1*mm;     //??
 
   Cathode_diam = 1.5*cm;
+  Cathode_X =  6*mm;
+  Cathode_Y = 12*mm;
   Cathode_thick = 0.1*mm;
   
   block_x = 2.05*cm;
@@ -220,6 +242,7 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
 
   //Absorption length from transmittance measurements of 19 SICCAS crystals
   //at CUA. Transmittances from Vladimir.
+  /*
   const int nAbsl = 60;
   double wlAbsl[nAbsl] = {800.,790.,780.,770.,760.,750.,740.,730.,720.,710.,
 			  700.,690.,680.,670.,660.,650.,640.,630.,620.,610.,
@@ -240,10 +263,11 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
 			     //2.21313, 2.16771, 2.13827, 2.10315, 1.91101
 			     0.     , 0.     , 0.     , 0.     , 0.     , 
 			     0.     , 0.     , 0.     , 0.     , 0.     };
-
+  */
+  
   //Absorption length from transmittance measurement of a Crytur crystal
   //at CUA. Transmittances from Vladimir.
-  /*
+
   const int nAbsl = 61;
   double wlAbsl[nAbsl] = {800.,790.,780.,770.,760.,750.,740.,730.,720.,710.,
 			  700.,690.,680.,670.,660.,650.,640.,630.,620.,610.,
@@ -268,7 +292,6 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
 			     0.     ,   0.   ,   0.   ,   0.   ,  0., 
 			     0.     ,   0.   ,   0.   ,   0.   ,  0., 
 			     0.};
-  */
 
   for (G4int i=0; i<nAbsl; i++) wlAbsl[i] *= nanometer;
 
@@ -357,10 +380,10 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
   //  PbWO4MPT->AddConstProperty("SCINTILLATIONYIELD", 40000*0.377/100/MeV);
 
   //Crytur, tuned to 6.77 pe/MeV (16.1 pe/MeV for PMT full coverage)
-  // PbWO4MPT->AddConstProperty("SCINTILLATIONYIELD", 1.6*40000*0.377/100/MeV);
+  PbWO4MPT->AddConstProperty("SCINTILLATIONYIELD", 1.6*40000*0.377/100/MeV);
 
   //SICCAS, tuned to 6.90 pe/MeV (16.4 pe/MeV for PMT full coverage)
-  PbWO4MPT->AddConstProperty("SCINTILLATIONYIELD", 2.25*40000*0.377/100/MeV);
+  //PbWO4MPT->AddConstProperty("SCINTILLATIONYIELD", 2.25*40000*0.377/100/MeV);
 
   PbWO4MPT->AddConstProperty("RESOLUTIONSCALE", 1.0);
   //  PbWO4MPT->AddConstProperty("FASTTIMECONSTANT", 10.*ns);
@@ -381,7 +404,7 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
 
   G4double rindAir[52];
   for (G4int i=0; i<52; i++) {
-    rindAir[i] = 1.000293;   //Air @ STP
+    rindAir[i] = gapRefInd;   //Air @ STP normally
   };
   G4MaterialPropertiesTable *AirMPT = new G4MaterialPropertiesTable();
   AirMPT -> AddProperty("RINDEX",kphotPbWO4,rindAir,52);
@@ -406,25 +429,52 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
 
   // Optical grease BC630 from Bicron
   //
-  density = 1.06*g/cm3;
-  G4Material* OpticalGlue = new G4Material("Silgard", density, ncomponents=1);
-  OpticalGlue->AddElement(Si, 1); //exact composition not known
+  //  density = 1.06*g/cm3;
+  //G4Material* OpticalGlue = new G4Material("Silgard", density, ncomponents=1);
+  //  OpticalGlue->AddElement(Si, 1); //exact composition not known
+  //
+  //  G4double rindGlue[52];
+  //  for (G4int i=0; i<52; i++) {
+  //    rindGlue[i] = 1.465;
+  //  };
 
+  G4Material* OpticalGlue;
   G4double rindGlue[52];
-  for (G4int i=0; i<52; i++) {
-    rindGlue[i] = 1.465;
-  };
+
+  if (phDetFlag == 0) {
+
+    // Optical grease BC630 from Bicron
+    //
+    density = 1.06*g/cm3;
+    OpticalGlue = new G4Material("Silgard", density, ncomponents=1);
+    OpticalGlue->AddElement(Si, 1); //not known
+
+    for (G4int i=0; i<52; i++) {
+      rindGlue[i] = 1.465;
+    };
+
+  }
+  else {
+  
+    // Dow Corning 3145 RTV-CLEAR MIL-A-44146 adhesive seelant
+    // (polydimethylsiloxane)
+    density = 0.965*g/cm3;
+    OpticalGlue = new G4Material("Dow Corning 3145", density, ncomponents=4);
+    OpticalGlue->AddElement(Si, 1);
+    OpticalGlue->AddElement(O , 1);
+    OpticalGlue->AddElement(C , 2);
+    OpticalGlue->AddElement(H , 6);
+  
+    for (G4int i=0; i<52; i++) {
+      rindGlue[i] = 1.4;
+    };
+  }
 
   G4MaterialPropertiesTable *GlueMPT = new G4MaterialPropertiesTable();
   GlueMPT -> AddProperty("RINDEX",kphotPbWO4,rindGlue,52);
   OpticalGlue -> SetMaterialPropertiesTable(GlueMPT);
 
   // Optical insulation
-  //
-  ///  density = 1.5;   //approximately
-  ///  G4Material* Polymer = new G4Material("Polymer", density, ncomponents=2);
-  ///  Polymer->AddElement(C, 1);
-  ///  Polymer->AddElement(H, 1);
   density = 1.38;   //from goodfellow
   G4Material* PVF = new G4Material("Polyvinyl fluoride",density,ncomponents=3);
   PVF->AddElement(C, 2);
@@ -492,15 +542,16 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
 			      tedlar_box, tedlar_hole, trans_tedlar_hole);
 
   //Remove front wall of Tedlar
-  G4Box* tedlar_front = new G4Box("Tedlar_fr",
-				  tedlar_x/2,tedlar_y/2,tedlar_thick/2);
-  G4ThreeVector z_trans_tedlar_front(0, 0, -tedlar_z/2 + tedlar_thick/2);
-  G4Transform3D trans_tedlar_front(rot, z_trans_tedlar_front);
-  G4SubtractionSolid* tedlar_frame = new G4SubtractionSolid("Tedlar",
-			      tedlar_holed, tedlar_front, trans_tedlar_front);
+  ///G4Box* tedlar_front = new G4Box("Tedlar_fr",
+  ///  				  tedlar_x/2,tedlar_y/2,tedlar_thick/2);
+  ///  G4ThreeVector z_trans_tedlar_front(0, 0, -tedlar_z/2 + tedlar_thick/2);
+  ///  G4Transform3D trans_tedlar_front(rot, z_trans_tedlar_front);
+  ///  G4SubtractionSolid* tedlar_frame = new G4SubtractionSolid("Tedlar",
+  ///  			      tedlar_holed, tedlar_front, trans_tedlar_front);
 
-  tedlar_log = new G4LogicalVolume(tedlar_frame,PVF,"Tedlar",0,0,0);
-
+  ///  tedlar_log = new G4LogicalVolume(tedlar_frame,PVF,"Tedlar",0,0,0);
+  tedlar_log = new G4LogicalVolume(tedlar_holed,PVF,"Tedlar",0,0,0);
+    
   //Mylar, reflector.
   
   G4Box* mylar_outer = new G4Box("Mylar_solid",mylar_x/2,mylar_y/2,mylar_z/2);
@@ -522,14 +573,15 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
 				      mylar_box, mylar_hole, trans_mylar_hole);
 
   //Remove front wall of Mylar
-  G4Box* mylar_front = new G4Box("Mylar_fr",mylar_x/2,mylar_y/2,mylar_thick/2);
-  G4ThreeVector z_trans_mylar_front(0, 0, -mylar_z/2 + mylar_thick/2);
-  G4Transform3D trans_mylar_front(rot, z_trans_mylar_front);
-  G4SubtractionSolid* mylar_frame = new G4SubtractionSolid("Mylar_holed",
-			      mylar_holed, mylar_front, trans_mylar_front);
+  ///G4Box* mylar_front = new G4Box("Mylar_fr",mylar_x/2,mylar_y/2,mylar_thick/2);
+  ///  G4ThreeVector z_trans_mylar_front(0, 0, -mylar_z/2 + mylar_thick/2);
+  ///  G4Transform3D trans_mylar_front(rot, z_trans_mylar_front);
+  ///  G4SubtractionSolid* mylar_frame = new G4SubtractionSolid("Mylar_holed",
+  ///  			      mylar_holed, mylar_front, trans_mylar_front);
 
-  mylar_log=new G4LogicalVolume(mylar_frame,Mylar,"Mylar",0,0,0);
-
+  ///  mylar_log=new G4LogicalVolume(mylar_frame,Mylar,"Mylar",0,0,0);
+  mylar_log=new G4LogicalVolume(mylar_holed,Mylar,"Mylar",0,0,0);
+    
   // PMT Window
   //
   G4Tubs*  PMTWin_tube =
@@ -547,10 +599,21 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
 
   // Photocathode
   //
-  G4Tubs*  Cathode_tube =
-  new G4Tubs("Cathode", 0., Cathode_diam/2, Cathode_thick/2,0.*deg, 360.*deg);
+  //  G4Tubs*  Cathode_tube =
+  //new G4Tubs("Cathode", 0., Cathode_diam/2, Cathode_thick/2,0.*deg, 360.*deg);
 
-  Cathode_log = new G4LogicalVolume(Cathode_tube, Bialcali, "Cathode");
+  //  Cathode_log = new G4LogicalVolume(Cathode_tube, Bialcali, "Cathode");
+
+  if (phDetFlag == 0) {
+    G4Tubs*  Cathode_tube =
+      new G4Tubs("Cathode",0., Cathode_diam/2, Cathode_thick/2,0.*deg,360.*deg);
+    Cathode_log = new G4LogicalVolume(Cathode_tube, Bialcali, "Cathode");
+  }
+  else {
+    G4Box*  Cathode_box =
+      new G4Box("Cathode", Cathode_X/2., Cathode_Y/2, Cathode_thick/2.);
+    Cathode_log = new G4LogicalVolume(Cathode_box, Bialcali, "Cathode");
+  }
 
   // Optical glue
   //
@@ -667,28 +730,6 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
   refKphot = new G4double[refNumData];
   for (G4int i=0; i<refNumData; i++) refKphot[i] = hc/refWL[i];
 
-  /*
-  if (refFlag != 0) {
-    //Specular reflector.
-
-    ReflectorMPT->AddProperty("REALRINDEX",refKphot,refReIndex,refNumData);
-    ReflectorMPT->AddProperty("IMAGINARYRINDEX",refKphot,refImIndex,refNumData);
-
-    Reflector -> SetType(dielectric_metal);
-    Reflector -> SetFinish(polished);
-    Reflector -> SetModel(glisur);
-  }
-  else {
-    // Diffuse reflector, PTFE (Teflon).
-
-    ReflectorMPT -> AddProperty("REFLECTIVITY",refKphot,refRefl,refNumData);
-
-    Reflector -> SetType(dielectric_dielectric);
-    Reflector -> SetModel(unified);
-    Reflector -> SetFinish(groundfrontpainted);   //Purely Lambertian reflection
-  }
-  */
-
   if (refFlag == 1) {
 
     ReflectorMPT->AddProperty("REALRINDEX",refKphot,refReIndex,refNumData);
@@ -732,7 +773,7 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
   
   //Quantum efficiency of PMT photocathode.
   //
-
+  /*
   G4double wlCat[101] = {675.,670.,665.,660.,655.,650.,645.,640.,635.,630.,
 			 625.,620.,615.,610.,605.,600.,595.,590.,585.,580.,
 			 575.,570.,565.,560.,555.,550.,545.,540.,535.,530.,
@@ -744,31 +785,79 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
 			 275.,270.,265.,260.,255.,250.,245.,240.,235.,230.,
 			 225.,220.,215.,210.,205.,200.,195.,190.,185.,180.,
 			 175.};
+  */
+
+  //Quantum efficiencies.
+  //
+
+  int nCat;
+  if (phDetFlag == 0)
+    nCat = 101;
+  else
+    nCat = 53;
+  
+  vector<G4double> wlCat(nCat);
+  vector<G4double> kphotCat(nCat);   //Momenta of optical photons in eV units.
+  vector<G4double> effCat(nCat);
+  vector<G4double> reflCat(nCat);
+
+  if (phDetFlag == 0) {
+     wlCat = {675.,670.,665.,660.,655.,650.,645.,640.,635.,630.,
+	      625.,620.,615.,610.,605.,600.,595.,590.,585.,580.,
+	      575.,570.,565.,560.,555.,550.,545.,540.,535.,530.,
+	      525.,520.,515.,510.,505.,500.,495.,490.,485.,480.,
+	      475.,470.,465.,460.,455.,450.,445.,440.,435.,430.,
+	      425.,420.,415.,410.,405.,400.,395.,390.,385.,380.,
+	      375.,370.,365.,360.,355.,350.,345.,340.,335.,330.,
+	      325.,320.,315.,310.,305.,300.,295.,290.,285.,280.,
+	      275.,270.,265.,260.,255.,250.,245.,240.,235.,230.,
+	      225.,220.,215.,210.,205.,200.,195.,190.,185.,180.,
+	      175.};
+     // Hamamatsu R4125 quantum efficiency (bialcali photocathode, borosilicate
+     // window). Taken from the Hamamatsu booklet, p.65.
+     effCat = {
+       0.0030,0.0035,0.0040,0.0046,0.0052,0.0060,0.0068,0.0077,0.0087,0.0099,
+       0.0112,0.0126,0.0141,0.0159,0.0177,0.0198,0.0221,0.0245,0.0272,0.0301,
+       0.0332,0.0365,0.0401,0.0440,0.0481,0.0525,0.0572,0.0621,0.0673,0.0728,
+       0.0785,0.0846,0.0908,0.0973,0.1041,0.1110,0.1181,0.1255,0.1329,0.1405,
+       0.1482,0.1560,0.1638,0.1716,0.1793,0.1870,0.1946,0.2020,0.2092,0.2162,
+       0.2229,0.2293,0.2354,0.2411,0.2463,0.2511,0.2554,0.2592,0.2625,0.2651,
+       0.2673,0.2688,0.2697,0.2700,0.2688,0.2653,0.2595,0.2517,0.2419,0.2305,
+       0.2177,0.2038,0.1891,0.1740,0.1586,0.1434,0.1285,0.1141,0.1004,0.0877,
+       0.0758,0.0650,0.0553,0.0466,0.0389,0.0322,0.0264,0.0215,0.0173,0.0138,
+       0.0110,0.0086,0.0067,0.0052,0.0040,0.0030,0.0023,0.0017,0.0012,0.0009,
+       0.0007};
+  }
+  else {
+     wlCat = {
+       883.49,868.0,850.59,835.1,819.62,804.13,773.16,759.61,744.12,730.57,
+       717.01,703.46,693.78,682.15,666.66,655.03,645.34,633.72,624.02,614.33,
+       604.64,587.2,577.51,567.81,560.06,550.36,540.67,529.04,519.34,511.58,
+       503.82,499.95,490.25,482.5,455.4,436.06,414.82,403.24,393.6,385.89,
+       378.18,372.4,343.45,333.8,324.16,318.38,312.6,306.84,304.93,301.15,
+       299.25,287.92,280.21};
+
+     // Hamamatsu S14160-6050HS MPPC PDE (photon detection efficiency). Data
+     // digitized from graph in booklet.
+     effCat = {
+       4.739,5.572,6.405,7.238,8.237,9.236,11.234,12.233,13.398,14.563,
+       15.728,16.893,17.725,19.056,20.72,22.217,23.548,24.879,26.376,27.707,
+       29.204,31.533,33.03,34.527,35.858,37.355,38.852,41.014,42.511,44.007,
+       45.504,46.169,47.666,49.163,50.828,50.498,48.839,47.51,45.85,44.355,
+       42.694,41.198,38.21,36.715,35.221,33.559,32.064,29.738,28.076,22.758,
+       21.096,3.646,2.151};
+       for (G4int i=0; i<nCat; i++)
+	 effCat[i] /= 100.;
+  }
 
   for (G4int i=0; i<101; i++) {
     wlCat[i] *= nanometer;
   };
 
-  G4double kphotCat[101];   //Momenta of optical photons in eV units.
-  for (G4int i=0; i<101; i++) kphotCat[i] = hc/wlCat[i];
-
-  // Hamamatsu R4125 quantum efficiency (bialcali photocathode, borosilicate
-  // window). Taken from the Hamamatsu booklet, p.65.
-  G4double effCat[101] = {
-    0.0030,0.0035,0.0040,0.0046,0.0052,0.0060,0.0068,0.0077,0.0087,0.0099,
-    0.0112,0.0126,0.0141,0.0159,0.0177,0.0198,0.0221,0.0245,0.0272,0.0301,
-    0.0332,0.0365,0.0401,0.0440,0.0481,0.0525,0.0572,0.0621,0.0673,0.0728,
-    0.0785,0.0846,0.0908,0.0973,0.1041,0.1110,0.1181,0.1255,0.1329,0.1405,
-    0.1482,0.1560,0.1638,0.1716,0.1793,0.1870,0.1946,0.2020,0.2092,0.2162,
-    0.2229,0.2293,0.2354,0.2411,0.2463,0.2511,0.2554,0.2592,0.2625,0.2651,
-    0.2673,0.2688,0.2697,0.2700,0.2688,0.2653,0.2595,0.2517,0.2419,0.2305,
-    0.2177,0.2038,0.1891,0.1740,0.1586,0.1434,0.1285,0.1141,0.1004,0.0877,
-    0.0758,0.0650,0.0553,0.0466,0.0389,0.0322,0.0264,0.0215,0.0173,0.0138,
-    0.0110,0.0086,0.0067,0.0052,0.0040,0.0030,0.0023,0.0017,0.0012,0.0009,
-    0.0007};
-
-  G4double reflCat[101];
-  for (G4int i = 0; i < 101; i++) {
+  ///  G4double kphotCat[101];   //Momenta of optical photons in eV units.
+  for (G4int i=0; i<nCat; i++) kphotCat[i] = hc/wlCat[i];
+  
+  for (G4int i = 0; i < nCat; i++) {
     reflCat[i] = 0.;
   }
 
@@ -779,8 +868,8 @@ G4VPhysicalVolume* npsDetectorConstruction::Construct()
   surfCat -> SetModel(glisur);
 
   G4MaterialPropertiesTable* surfCatMPT = new G4MaterialPropertiesTable();
-  surfCatMPT -> AddProperty("REFLECTIVITY",kphotCat,reflCat,101);
-  surfCatMPT -> AddProperty("EFFICIENCY",kphotCat,effCat,101);
+  surfCatMPT -> AddProperty("REFLECTIVITY",kphotCat,reflCat,nCat);
+  surfCatMPT -> AddProperty("EFFICIENCY",kphotCat,effCat,nCat);
 
   surfCat -> SetMaterialPropertiesTable(surfCatMPT);
 

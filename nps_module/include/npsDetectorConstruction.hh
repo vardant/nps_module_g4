@@ -36,7 +36,8 @@ private:
   G4double mylar_thick;
   G4double glue_thick;    //Glue between PMT and scintillator block
   G4double air_gap;       //Air gap between reflector and scintillator block
-
+  G4double gapRefInd;     //refractive index of gap (nominally air)
+  
   //Parameters of reflector to be read from input file (reflector.inp).
   G4int refFlag;
   G4String refName;
@@ -46,16 +47,19 @@ private:
   G4double* refImIndex;
   G4double subRefrIndex;
   G4double* refRefl;
-
+  G4int phDetFlag;      //photodetector flag, 0 -> PMT, 1 -> MPPC.
+  
   //Scintillator block sizes.  
   G4double block_x;
   G4double block_y;
   G4double block_z;
 
-  //PMT sizes.
+  //PMT and MPPC sizes.
   G4double PMT_diameter;
   G4double PMTWin_thick;    //Thickness of PMT glass window.
-  G4double Cathode_diam;    //Photocathode diameter, thickness.
+  G4double Cathode_diam;    //Photocathode diameter (if PMT is used)
+  G4double Cathode_X;    //MPPC X
+  G4double Cathode_Y;    //MPPC Y
   G4double Cathode_thick;
 
   //Outer sizes of the whole assembly (counter).
